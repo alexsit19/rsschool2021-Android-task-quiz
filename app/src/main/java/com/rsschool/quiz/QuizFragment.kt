@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.rsschool.quiz.databinding.FragmentQuizBinding
 
@@ -33,38 +34,85 @@ class QuizFragment : Fragment() {
         binding?.previousButton?.isEnabled = false
         binding?.nextButton?.isEnabled = false
         quizViewModel = ViewModelProvider(this).get(QuizViewModel::class.java)
+        quizViewModel.questionCount.observe(viewLifecycleOwner, Observer { newQuestionCount ->
+            questionCount = newQuestionCount
+
+        })
+
         questionCount = quizViewModel.questionCount.value
-
-        binding?.nextButton?.setOnClickListener {
-            Log.d("DEBUG", "next button is pressed")
-        }
-
-        if (questionCount != 1) {
-            binding?.previousButton?.isEnabled = true
-
-        }
+        uiUpdate()
 
         binding?.previousButton?.setOnClickListener {
             getPreviousQuestion()
+            uiUpdate()
         }
 
         binding?.nextButton?.setOnClickListener {
             getNextQuestion()
             binding?.toolbar?.title = "Question $questionCount"
+            uiUpdate()
         }
 
-        binding?.radioGroup?.setOnCheckedChangeListener{ _, checkId ->
+        binding?.radioGroup?.setOnCheckedChangeListener { _, checkId ->
             when(checkId) {
-
-                binding?.optionOne?.id -> Log.d("DEBUG", "опция 1 выбрана")
-                binding?.optionTwo?.id -> Log.d("DEBUG", "опция 2 выбрана")
-                binding?.optionThree?.id -> Log.d("DEBUG", "опция 3 выбрана")
-                binding?.optionFour?.id -> Log.d("DEBUG", "опция 4 выбрана")
-                binding?.optionFive?.id -> Log.d("DEBUG", "опция 5 выбрана")
+                binding?.optionOne?.id -> quizViewModel.currentAnswers[questionCount] = "1"
+                binding?.optionTwo?.id -> quizViewModel.currentAnswers[questionCount] = "2"
+                binding?.optionThree?.id -> quizViewModel.currentAnswers[questionCount] = "3"
+                binding?.optionFour?.id -> quizViewModel.currentAnswers[questionCount] = "4"
+                binding?.optionFive?.id -> quizViewModel.currentAnswers[questionCount] = "5"
 
             }
             binding?.nextButton?.isEnabled = true
         }
+    }
+
+    fun uiUpdate() {
+        binding?.apply {
+            question.text = quizViewModel.questionsList[questionCount]
+            optionOne.text = quizViewModel.answersList[questionCount]?.get(0)
+            optionTwo.text = quizViewModel.answersList[questionCount]?.get(1)
+            optionThree.text = quizViewModel.answersList[questionCount]?.get(2)
+            optionFour.text = quizViewModel.answersList[questionCount]?.get(3)
+            optionFive.text = quizViewModel.answersList[questionCount]?.get(4)
+
+            if (quizViewModel.currentAnswers[questionCount] == "0") {
+                binding?.radioGroup?.clearCheck()
+                nextButton.isEnabled = false
+                Log.d("DEBUG", "IF 0")
+
+            } else {
+                when (quizViewModel.currentAnswers[questionCount]) {
+                    "1" -> {
+                        optionOne.isChecked = true
+                        quizViewModel.currentAnswers[questionCount] = "1"
+                    }
+                    "2" -> {
+                        optionTwo.isChecked = true
+                        quizViewModel.currentAnswers[questionCount] = "2"
+                    }
+                    "3" -> {
+                        optionThree.isChecked = true
+                        quizViewModel.currentAnswers[questionCount] = "3"
+                    }
+                    "4" -> {
+                        optionFour.isChecked = true
+                        quizViewModel.currentAnswers[questionCount] = "4"
+                    }
+                    "5" -> {
+                        optionFive.isChecked = true
+                        quizViewModel.currentAnswers[questionCount] = "5"
+                    }
+                }
+            }
+
+            if(quizViewModel.questionCount.value != 1) {
+                previousButton.isEnabled = true
+
+            } else {
+                previousButton.isEnabled = false
+            }
+        }
+        Log.d("DEBUG", "${quizViewModel.currentAnswers.toString()}")
     }
 
     override fun onDestroyView() {

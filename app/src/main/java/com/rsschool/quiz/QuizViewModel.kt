@@ -15,7 +15,7 @@ class QuizViewModel : ViewModel() {
             4 to listOf("Anw 1", "Anw 2", "Anw 3", "Anw 4", "Anw 5"),
             5 to listOf("Anw 1", "Anw 2", "Anw 3", "Anw 4", "Anw 5"))
 
-    val currentAnswers = mutableMapOf<Int, String>(1 to "0", 2 to "0", 3 to "0", 4 to "0", 5 to "0")
+    var currentAnswers = mutableMapOf<Int?, String>(1 to "0", 2 to "0", 3 to "0", 4 to "0", 5 to "0")
 
     private val _questionCount = MutableLiveData<Int>()
     val questionCount: LiveData<Int>
