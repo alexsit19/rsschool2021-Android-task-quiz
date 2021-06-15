@@ -6,7 +6,7 @@ import android.util.Log
 import com.rsschool.quiz.databinding.ActivityMainBinding
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CallBackInterface {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -15,9 +15,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportFragmentManager.beginTransaction()
-            .add(binding.hostFragment.id, QuizFragment())
-            .commit()
+        Log.d("DEBUG", "Activity.onCreate")
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(binding.hostFragment.id, QuizFragment())
+                .commit()
+        }
 
+    }
+
+    override fun replaceFragment(questionCount: Int?, currentAnswers: MutableMap<Int?, String>) {
+        supportFragmentManager.beginTransaction()
+            .replace(binding.hostFragment.id, QuizFragment.newInstance(questionCount, currentAnswers))
+            .commit()
     }
 }
