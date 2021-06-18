@@ -1,28 +1,23 @@
 package com.rsschool.quiz
 
 import android.content.Context
-import android.content.res.Resources
-import android.content.res.TypedArray
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.rsschool.quiz.databinding.FragmentQuizBinding
 
 class QuizFragment : Fragment() {
 
-    private var binding: FragmentQuizBinding? = null
+    private var _binding: FragmentQuizBinding? = null
+    private val binding get() = _binding!!
     private var questionCount: Int? = 1
-    private var clickListener: CallBackInterface? = null
+    private var clickListener: QuizFragmentInterface? = null
     private var currentAnswers = mutableMapOf<Int?, String>(1 to "0", 2 to "0", 3 to "0", 4 to "0", 5 to "0")
+    private var reset = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,17 +29,19 @@ class QuizFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        var map: Map<Int?, String>? = null
+        var map: Map<Int?, String>?
 
         var arg: Bundle? = null
         try {
             arg = requireArguments()
+            reset = arg.getBoolean(IS_RESET)
+
         } catch (e: IllegalStateException) {
 
         }
 
-        if(arg != null) {
-            map = mutableMapOf<Int?, String>()
+        if(arg != null && !reset) {
+            map = mutableMapOf()
             for (i in 1..5) {
                 val value = arg.getString(i.toString())
                 map[i] = value ?: "0"
@@ -52,21 +49,22 @@ class QuizFragment : Fragment() {
 
             currentAnswers = map
             questionCount = arg.getInt(QUESTION_COUNT)
-            val themId = getThemeId()
-            val typedValue = TypedValue()
-            inflater.context.setTheme(themId)
-            val currentTheme = context?.theme
-            currentTheme?.resolveAttribute(android.R.attr.statusBarColor, typedValue, true)
-            //binding?.toolbar?.setBackgroundColor(typedValue.data)
-            val window = activity?.window
-            window?.statusBarColor = typedValue.data
 
-
+        } else {
+            reset = false
 
         }
 
-        binding = FragmentQuizBinding.inflate(inflater, container, false)
-        return binding?.root
+        val themId = getThemeId()
+        val typedValue = TypedValue()
+        inflater.context.setTheme(themId)
+        val currentTheme = context?.theme
+        currentTheme?.resolveAttribute(android.R.attr.statusBarColor, typedValue, true)
+        val window = activity?.window
+        window?.statusBarColor = typedValue.data
+
+        _binding = FragmentQuizBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onAttach(context: Context) {
@@ -83,42 +81,61 @@ class QuizFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         uiUpdate()
-        binding?.previousButton?.setOnClickListener {
+
+        binding.toolbar.getChildAt(1)?.setOnClickListener {
             getPreviousQuestion()
-            clickListener?.replaceFragment(questionCount, currentAnswers)
+            clickListener?.replaceFragment(reset, questionCount, currentAnswers)
             //themeChange()
             uiUpdate()
         }
 
-        binding?.nextButton?.setOnClickListener {
+        binding.previousButton.setOnClickListener {
+            getPreviousQuestion()
+            clickListener?.replaceFragment(reset, questionCount, currentAnswers)
+            uiUpdate()
+        }
+
+        binding.nextButton.setOnClickListener {
             getNextQuestion()
-            binding?.toolbar?.title = "Question $questionCount"
-            //themeChange()
-            clickListener?.replaceFragment(questionCount, currentAnswers)
-            uiUpdate()
+            if (questionCount == 6) {
+                Log.d("DEBUG", "RESULT FRAGMENT")
+                val score = countRightAnswers()
+                clickListener?.openResultFragment(score)
 
-        }
-
-        binding?.radioGroup?.setOnCheckedChangeListener { _, checkId ->
-            when (checkId) {
-                binding?.optionOne?.id -> currentAnswers[questionCount] = "1"
-                binding?.optionTwo?.id -> currentAnswers[questionCount] = "2"
-                binding?.optionThree?.id -> currentAnswers[questionCount] = "3"
-                binding?.optionFour?.id -> currentAnswers[questionCount] = "4"
-                binding?.optionFive?.id -> currentAnswers[questionCount] = "5"
+            } else {
+                binding.toolbar.title = "Question $questionCount"
+                clickListener?.replaceFragment(reset, questionCount, currentAnswers)
+                uiUpdate()
 
             }
-            binding?.nextButton?.isEnabled = true
+        }
+
+        binding.radioGroup.setOnCheckedChangeListener { _, checkId ->
+            when (checkId) {
+                binding.optionOne.id -> currentAnswers[questionCount] = "1"
+                binding.optionTwo.id -> currentAnswers[questionCount] = "2"
+                binding.optionThree.id -> currentAnswers[questionCount] = "3"
+                binding.optionFour.id -> currentAnswers[questionCount] = "4"
+                binding.optionFive.id -> currentAnswers[questionCount] = "5"
+
+            }
+            binding.nextButton.isEnabled = true
 
         }
     }
 
+    fun countRightAnswers(): Int {
+        var score = 0
+        for (i in 1..5) {
+            if (currentAnswers[i] == Db.rightAnswersList[i]) {
+                score++
+            }
+        }
+
+        return score * 20
+    }
+
     fun getThemeId(): Int {
-        var typedValue = TypedValue()
-        val theme = context?.theme
-        //val style = context?.obtainStyledAttributes(style.Theme_Quiz_Second, )
-        val theme1 = R.style.Theme_Quiz_First
-        //val c = context?.g
 
         when (questionCount) {
             1 -> {
@@ -128,28 +145,30 @@ class QuizFragment : Fragment() {
             }
             2 -> {
                 return R.style.Theme_Quiz_Second
-//                theme?.resolveAttribute(android.R.attr.statusBarColor, typedValue, true)
-//                binding?.toolbar?.setBackgroundColor(typedValue.data)
+
             }
             3 -> {
                 Log.d("DEBUG", "HERE 3")
-                return R.style.Theme_Quiz_First
+                return R.style.Theme_Quiz_Third
 
             }
             4 -> {
-                return R.style.Theme_Quiz_Second
+                return R.style.Theme_Quiz_Fourth
+
             }
             5 -> {
-                return R.style.Theme_Quiz_First
+                return R.style.Theme_Quiz_Fifth
+
             }
             else -> {
                 return R.style.Theme_Quiz
+
             }
         }
     }
 
     fun uiUpdate() {
-        binding?.apply {
+        binding.apply {
             toolbar.title = "Question $questionCount"
             question.text = Db.questionsList[questionCount]
             optionOne.text = Db.answersList[questionCount]?.get(0)
@@ -159,7 +178,7 @@ class QuizFragment : Fragment() {
             optionFive.text = Db.answersList[questionCount]?.get(4)
 
             if (currentAnswers[questionCount] == "0") {
-                binding?.radioGroup?.clearCheck()
+                binding.radioGroup.clearCheck()
                 nextButton.isEnabled = false
 
             } else {
@@ -187,11 +206,18 @@ class QuizFragment : Fragment() {
                 }
             }
 
-            if (questionCount != 1) {
-                previousButton.isEnabled = true
+            when(questionCount) {
+                in 2..5 -> { previousButton.isEnabled = true
+                            if (questionCount == 5) {
+                                nextButton.text = "submit"
 
-            } else {
-                previousButton.isEnabled = false
+                            } else {
+                                nextButton.text = "next"
+
+                            }
+                }
+                1 -> { previousButton.isEnabled = false
+                       binding.toolbar.navigationIcon = null }
             }
         }
         Log.d("DEBUG", "${currentAnswers.toString()}")
@@ -199,7 +225,7 @@ class QuizFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
+        _binding = null
     }
 
     fun getNextQuestion() {
@@ -216,19 +242,22 @@ class QuizFragment : Fragment() {
 
         private const val QUESTION_COUNT = "COUNT"
         private const val CURRENT_ANSWERS = "CURRENT_ANSWERS"
+        private const val IS_RESET = "reset"
 
         @JvmStatic
-        fun newInstance(questionCount: Int?, currentAnswers: MutableMap<Int?, String>): QuizFragment {
+        fun newInstance(reset: Boolean, questionCount: Int? = null, currentAnswers: MutableMap<Int?, String>? = null): QuizFragment {
             val fragment = QuizFragment()
             val args = Bundle()
+            args.putBoolean(IS_RESET, reset)
             questionCount?.let { args.putInt(QUESTION_COUNT, it) }
-            for (item in currentAnswers) {
-                args.putString(item.key.toString(), item.value)
+            if (currentAnswers != null) {
+                for (item in currentAnswers) {
+                    args.putString(item.key.toString(), item.value)
+                }
             }
             fragment.arguments = args
             return fragment
         }
-
     }
 }
 
