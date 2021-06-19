@@ -86,7 +86,6 @@ class QuizFragment : Fragment() {
         binding.toolbar.getChildAt(1)?.setOnClickListener {
             getPreviousQuestion()
             clickListener?.replaceFragment(reset, questionCount, currentAnswers)
-            //themeChange()
             uiUpdate()
         }
 
@@ -99,7 +98,6 @@ class QuizFragment : Fragment() {
         binding.nextButton.setOnClickListener {
             getNextQuestion()
             if (questionCount == 6) {
-                Log.d("DEBUG", "RESULT FRAGMENT")
                 val score = countRightAnswers()
                 clickListener?.openResultFragment(score, currentAnswers)
 
@@ -121,7 +119,6 @@ class QuizFragment : Fragment() {
 
             }
             binding.nextButton.isEnabled = true
-
         }
     }
 
@@ -132,17 +129,13 @@ class QuizFragment : Fragment() {
                 score++
             }
         }
-
         return score * 20
     }
-
-    fun mapToPair(map: Map<Int?, String>) = map.keys.map {Pair(it.toString(), map[it] as Any)}
 
     fun getThemeId(): Int {
 
         when (questionCount) {
             1 -> {
-                Log.d("DEBUG", "HERE")
                 return R.style.Theme_Quiz_First
 
             }
@@ -151,7 +144,6 @@ class QuizFragment : Fragment() {
 
             }
             3 -> {
-                Log.d("DEBUG", "HERE 3")
                 return R.style.Theme_Quiz_Third
 
             }
@@ -170,7 +162,7 @@ class QuizFragment : Fragment() {
         }
     }
 
-    fun uiUpdate() {
+    private fun uiUpdate() {
         binding.apply {
             toolbar.title = "Question $questionCount"
             question.text = Db.questionsList[questionCount]
@@ -223,7 +215,6 @@ class QuizFragment : Fragment() {
                        binding.toolbar.navigationIcon = null }
             }
         }
-        Log.d("DEBUG", "${currentAnswers.toString()}")
     }
 
     override fun onDestroyView() {
@@ -231,13 +222,12 @@ class QuizFragment : Fragment() {
         _binding = null
     }
 
-    fun getNextQuestion() {
+    private fun getNextQuestion() {
         questionCount = questionCount?.plus(1)
-        Log.d("DEBUG", "NextQuestion $questionCount")
 
     }
 
-    fun getPreviousQuestion() {
+    private fun getPreviousQuestion() {
         questionCount = questionCount?.minus(1)
     }
 

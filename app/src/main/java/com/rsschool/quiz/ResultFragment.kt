@@ -39,7 +39,7 @@ class ResultFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+
         _binding = FragmentResultBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -61,7 +61,6 @@ class ResultFragment : Fragment() {
                 val value = arg.getString(i.toString())
                 answers[i] = value
             }
-            Log.d("DEBUG", "${answers.toString()}")
         }
         uiUpdate()
 
@@ -78,7 +77,7 @@ class ResultFragment : Fragment() {
         }
     }
 
-    fun uiUpdate() {
+    private fun uiUpdate() {
         binding.resultTv.text = "Your result $score %"
     }
 
@@ -87,13 +86,11 @@ class ResultFragment : Fragment() {
         _binding = null
     }
 
-    fun generateQuizReport(): String {
+    private fun generateQuizReport(): String {
         var message = "Your result $score %\n\n"
         for (i in 1..5) {
             message += "$i) ${Db.questionsList[i].toString()}\n"
-            //message += "Your answer: ${answers?.get(i)?.toInt()?.let { Db.answersList[i]?.get(it) }}\n\n"
             message += "Your answer: ${answers[i]?.let { Db.answersList[i]?.get(it.toInt() - 1) }}\n\n"
-            //val s = Db.answersList[i]?.get(0)
 
         }
         return message
@@ -105,7 +102,6 @@ class ResultFragment : Fragment() {
 
         fun newInstance(result: Int, answers: Map<Int?, String>): ResultFragment {
             val fragment = ResultFragment()
-            Log.d("DEBUG", "FROM INSTANCE ${answers.toString()}")
             //использовать bundleOf не представляется возможным, т.к. нужно в bundle поместить map с моими типами параметров
             val args = Bundle()
             args.putInt(RESULT, result)
@@ -116,7 +112,6 @@ class ResultFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
-
     }
 }
 

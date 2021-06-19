@@ -17,7 +17,6 @@ class MainActivity : AppCompatActivity(), QuizFragmentInterface, ResultFragmentI
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.d("DEBUG", "Activity.onCreate")
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(binding.hostFragment.id, QuizFragment())
@@ -32,11 +31,9 @@ class MainActivity : AppCompatActivity(), QuizFragmentInterface, ResultFragmentI
     }
 
     override fun openResultFragment(result: Int, answers: Map<Int?, String>) {
-        Log.d("DEBUG", "FROM ACTIVITY ${answers.toString()}")
         supportFragmentManager.beginTransaction()
             .replace(binding.hostFragment.id, ResultFragment.newInstance(result, answers))
             .commit()
-        Log.d("DEBUG", "openResultFragmentFromActivity $result")
     }
 
     override fun close() {
