@@ -78,7 +78,7 @@ class ResultFragment : Fragment() {
     }
 
     private fun uiUpdate() {
-        binding.resultTv.text = "Your result $score %"
+        binding.resultTv.text = "Your result: $score %"
     }
 
     override fun onDestroyView() {
@@ -87,7 +87,7 @@ class ResultFragment : Fragment() {
     }
 
     private fun generateQuizReport(): String {
-        var message = "Your result $score %\n\n"
+        var message = "Your result: $score %\n\n"
         for (i in 1..5) {
             message += "$i) ${Db.questionsList[i].toString()}\n"
             message += "Your answer: ${answers[i]?.let { Db.answersList[i]?.get(it.toInt() - 1) }}\n\n"
