@@ -8,12 +8,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import com.rsschool.quiz.databinding.FragmentQuizBinding
 
 class QuizFragment : Fragment() {
 
     private var _binding: FragmentQuizBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = requireNotNull(_binding)
     private var questionCount: Int? = 1
     private var clickListener: QuizFragmentInterface? = null
     private var currentAnswers = mutableMapOf<Int?, String>(1 to "0", 2 to "0", 3 to "0", 4 to "0", 5 to "0")
@@ -100,7 +101,7 @@ class QuizFragment : Fragment() {
             if (questionCount == 6) {
                 Log.d("DEBUG", "RESULT FRAGMENT")
                 val score = countRightAnswers()
-                clickListener?.openResultFragment(score)
+                clickListener?.openResultFragment(score, currentAnswers)
 
             } else {
                 binding.toolbar.title = "Question $questionCount"
@@ -134,6 +135,8 @@ class QuizFragment : Fragment() {
 
         return score * 20
     }
+
+    fun mapToPair(map: Map<Int?, String>) = map.keys.map {Pair(it.toString(), map[it] as Any)}
 
     fun getThemeId(): Int {
 
@@ -248,11 +251,13 @@ class QuizFragment : Fragment() {
         fun newInstance(reset: Boolean, questionCount: Int? = null, currentAnswers: MutableMap<Int?, String>? = null): QuizFragment {
             val fragment = QuizFragment()
             val args = Bundle()
+            //использовать bundleOf не представляется возможным, т.к. нужно в bundle поместить map с моими типами параметров
             args.putBoolean(IS_RESET, reset)
             questionCount?.let { args.putInt(QUESTION_COUNT, it) }
             if (currentAnswers != null) {
                 for (item in currentAnswers) {
                     args.putString(item.key.toString(), item.value)
+
                 }
             }
             fragment.arguments = args

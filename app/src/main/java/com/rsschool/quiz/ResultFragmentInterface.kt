@@ -4,6 +4,6 @@ interface ResultFragmentInterface {
 
     fun reset(reset: Boolean)
     fun close()
-    fun share()
+    fun share(message: String)
 
 }

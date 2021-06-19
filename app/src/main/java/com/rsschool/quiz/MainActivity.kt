@@ -1,5 +1,6 @@
 package com.rsschool.quiz
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -30,15 +31,16 @@ class MainActivity : AppCompatActivity(), QuizFragmentInterface, ResultFragmentI
             .commit()
     }
 
-    override fun openResultFragment(result: Int) {
+    override fun openResultFragment(result: Int, answers: Map<Int?, String>) {
+        Log.d("DEBUG", "FROM ACTIVITY ${answers.toString()}")
         supportFragmentManager.beginTransaction()
-            .replace(binding.hostFragment.id, ResultFragment.newInstance(result))
+            .replace(binding.hostFragment.id, ResultFragment.newInstance(result, answers))
             .commit()
         Log.d("DEBUG", "openResultFragmentFromActivity $result")
     }
 
     override fun close() {
-        finishAffinity()
+        finish()
         exitProcess(0)
     }
 
@@ -46,7 +48,14 @@ class MainActivity : AppCompatActivity(), QuizFragmentInterface, ResultFragmentI
         replaceFragment(true)
     }
 
-    override fun share() {
-        TODO("Not yet implemented")
+    override fun share(message: String) {
+        val shareIntent = Intent()
+        shareIntent.apply {
+            action = Intent.ACTION_SEND
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "Quiz Result")
+            putExtra(Intent.EXTRA_TEXT, message)
+            startActivity(shareIntent)
+        }
     }
 }
