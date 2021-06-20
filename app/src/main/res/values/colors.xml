@@ -53,4 +53,11 @@
     <color name="deep_sky_blue">#00BFFF</color>
     <color name="steel_blue">#4682B4</color>
 
+    <color name="olive_drub">#6B8E23</color>
+    <color name="olive">#808000</color>
+    <color name="dark_olive_green">#556B2F</color>
+    <color name="yellow_green">#9ACD32</color>
+    <color name="spring_green">#00FF7F</color>
+    <color name="green">#008000</color>
+
 </resources>

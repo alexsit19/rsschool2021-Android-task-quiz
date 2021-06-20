@@ -1,6 +1,8 @@
 package com.rsschool.quiz
 
 import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -62,10 +64,30 @@ class QuizFragment : Fragment() {
         val currentTheme = context?.theme
         currentTheme?.resolveAttribute(android.R.attr.statusBarColor, typedValue, true)
         val window = activity?.window
-        window?.statusBarColor = typedValue.data
+
+
+        val mode = context?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)
+        when (mode) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                window?.statusBarColor = Color.BLACK
+
+            }
+            Configuration.UI_MODE_NIGHT_NO -> {
+                window?.statusBarColor = typedValue.data
+
+            }
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+                window?.statusBarColor = typedValue.data
+            }
+        }
+
 
         _binding = FragmentQuizBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    private fun changeTheme(): Unit {
+
     }
 
     override fun onAttach(context: Context) {
