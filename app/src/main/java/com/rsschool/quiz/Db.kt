@@ -2,13 +2,18 @@ package com.rsschool.quiz
 
 class Db {
     companion object {
-        val questionsList: Map<Int, String> = mapOf(1 to "Question 1", 2 to "Question 2", 3 to "Question 3", 4 to "Question 4", 5 to "Question 5")
-        val rightAnswersList: Map<Int, String> = mapOf(1 to "3", 2 to "4", 3 to "5", 4 to "1", 5 to "2")
+        val questionsList: Map<Int, String> = mapOf(
+            1 to "Каким своим изобретением русский народ только сам пользуется?",
+            2 to "Сколько глаз у пчелы?",
+            3 to "Сколько ГигаПевтов в семи ТераПевтах?",
+            4 to "Какая часть света самая высокая?",
+            5 to "Кто написал серию книг Дум/Doom?")
+        val rightAnswersList: Map<Int, String> = mapOf(1 to "2", 2 to "1", 3 to "2", 4 to "1", 5 to "4")
         val answersList: Map<Int, List<String>> = mapOf(
-            1 to listOf("Anw 1", "Anw 2", "Anw 3", "Anw 4", "Anw 5"),
-            2 to listOf("Anw 1", "Anw 2", "Anw 3", "Anw 4", "Anw 5"),
-            3 to listOf("Anw 1", "Anw 2", "Anw 3", "Anw 4", "Anw 5"),
-            4 to listOf("Anw 1", "Anw 2", "Anw 3", "Anw 4", "Anw 5"),
-            5 to listOf("Anw 1", "Anw 2", "Anw 3", "Anw 4", "Anw 5"))
+            1 to listOf("Тетрис", "Самовар", "Монорельс", "Велосипед", "Парашют"),
+            2 to listOf("Пять", "Два", "Три", "Восемь", "Шесть"),
+            3 to listOf("8192", "7168", "8198", "7192", "7032"),
+            4 to listOf("Азия", "Австралия", "Америка", "Африка", "Европа"),
+            5 to listOf("Гарри Гаррисон, Айзек Азимов", "Айзек Азимов", "Клифорд Саймак", "Девид Аб Хью, Бред Линавивер", "Стивен Кинг, Курт Воннегут"))
     }
 }

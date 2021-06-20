@@ -96,7 +96,6 @@ class ResultFragment : Fragment() {
         return message
     }
 
-
     companion object {
         private const val RESULT = "result"
 
